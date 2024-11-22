@@ -10,7 +10,7 @@ import Button from "@/components/Button";
 const PlaceholderImage = require("@/assets/images/background-image.png");
 
 export default function Index() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
