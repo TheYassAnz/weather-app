@@ -1,5 +1,6 @@
 import { Text, View } from "react-native";
 import { useEffect, useState } from "react";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function Index() {
     const [temperatures, setTemperatures] = useState<{[key: string]: number | null}>({
@@ -39,12 +40,20 @@ export default function Index() {
                 alignItems: "center",
             }}>
             {Object.entries(temperatures).map(([city, temp]) => (
-                <Text key={city}>
-                    {temp !== null 
-                        ? `${city.charAt(0).toUpperCase() + city.slice(1)} temperature: ${temp}°C`
-                        : `Loading ${city} temperature...`
-                    }
-                </Text>
+                <View key={city} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                    <MaterialCommunityIcons 
+                        name="thermometer" 
+                        size={24} 
+                        color="black" 
+                        style={{ marginRight: 8 }}
+                    />
+                    <Text>
+                        {temp !== null 
+                            ? `${city.charAt(0).toUpperCase() + city.slice(1)} temperature: ${temp}°C`
+                            : `Loading ${city} temperature...`
+                        }
+                    </Text>
+                </View>
             ))}
         </View>
     );
