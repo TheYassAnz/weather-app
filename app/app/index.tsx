@@ -62,11 +62,9 @@ export default function Index() {
         <View
             style={{
                 flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: "flex-start",
             }}>
             <List.Section>
-                <List.Subheader>Weather</List.Subheader>
                 {Object.entries(temperatures).map(([city, temp]) => (
                     <List.Item
                         key={city}
