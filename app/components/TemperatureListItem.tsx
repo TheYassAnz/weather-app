@@ -2,46 +2,17 @@ import { StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { List, Card, DataTable, Text } from "react-native-paper";
 import { useEffect, useState } from "react";
-
-type City = {
-    name: string;
-    lat: number;
-    lon: number;
-};
-
-type WeatherData = {
-    temperature: number;
-    windSpeed: number;
-    windDirection: number;
-    temperatureF: number;
-    minTemp: number;
-    maxTemp: number;
-    pressure: number;
-    humidity: number;
-    hourlyForecast: Array<{
-        time: string;
-        temp: number;
-    }>;
-    dailyForecast: Array<{
-        date: string;
-        minTemp: number;
-        maxTemp: number;
-    }>;
-};
+import { ENV } from "../config/env";
 
 const API = {
-    baseUrl: "https://api.open-meteo.com/v1/forecast",
-    params: "hourly=temperature_2m,windspeed_10m,winddirection_10m,relativehumidity_2m,pressure_msl&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5",
+    baseUrl: ENV.WEATHER_API_URL,
+    params: ENV.WEATHER_API_PARAMS,
 };
 
-type TemperatureListItemProps = {
-    city: City;
-};
-
-export function TemperatureListItem({ city }: TemperatureListItemProps) {
-    const [temperature, setTemperature] = useState<WeatherData | null>(null);
+export function TemperatureListItem({ city }) {
+    const [temperature, setTemperature] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         async function fetchWeather() {
@@ -64,11 +35,11 @@ export function TemperatureListItem({ city }: TemperatureListItemProps) {
                     maxTemp: data.daily.temperature_2m_max[0],
                     hourlyForecast: data.hourly.temperature_2m
                         .slice(0, 24)
-                        .map((temp: number, i: number) => ({
+                        .map((temp, i) => ({
                             time: data.hourly.time[i],
                             temp,
                         })),
-                    dailyForecast: data.daily.temperature_2m_max.map((max: number, i: number) => ({
+                    dailyForecast: data.daily.temperature_2m_max.map((max, i) => ({
                         date: data.daily.time[i],
                         maxTemp: max,
                         minTemp: data.daily.temperature_2m_min[i],
