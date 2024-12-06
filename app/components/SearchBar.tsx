@@ -39,12 +39,13 @@ export default function SearchBar() {
                 selectionColor={"#000"}
                 loading={loading}
             />
-            {!loading &&
-                cities &&
-                cities.map((city: any) => {
-                    return (
-                        <View>
+            <View>
+                {!loading &&
+                    cities &&
+                    cities.map((city: any) => {
+                        return (
                             <List.Item
+                                key={city.place_id}
                                 onPress={() => {
                                     setSearchQuery("");
                                     console.log(city);
@@ -52,9 +53,9 @@ export default function SearchBar() {
                                 title={city.display_name}
                                 description={`Latitude: ${city.lat}, Longitude: ${city.lon}`}
                             />
-                        </View>
-                    );
-                })}
+                        );
+                    })}
+            </View>
         </View>
     );
 }
