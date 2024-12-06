@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { List, Card, DataTable, Text } from "react-native-paper";
 import { useEffect, useState } from "react";
+import * as Location from 'expo-location';
 import { ENV } from "../config/env";
 
 const API = {
@@ -9,18 +10,44 @@ const API = {
     params: ENV.WEATHER_API_PARAMS,
 };
 
-export function TemperatureListItem({ city }) {
+export function TemperatureListItem() {
     const [temperature, setTemperature] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [location, setLocation] = useState(null);
 
     useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setError('Permission to access location was denied');
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const location = await Location.getCurrentPositionAsync({});
+                setLocation({
+                    lat: location.coords.latitude,
+                    lon: location.coords.longitude,
+                    name: 'Current Location'
+                });
+            } catch (err) {
+                setError('Could not get current location');
+                setIsLoading(false);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (!location) return;
+
         async function fetchWeather() {
             setIsLoading(true);
             setError(null);
 
             try {
-                const url = `${API.baseUrl}?latitude=${city.lat}&longitude=${city.lon}&${API.params}`;
+                const url = `${API.baseUrl}?latitude=${location.lat}&longitude=${location.lon}&${API.params}`;
                 const response = await fetch(url);
                 const data = await response.json();
 
@@ -46,7 +73,7 @@ export function TemperatureListItem({ city }) {
                     })),
                 });
             } catch (err) {
-                setError(`Failed to fetch weather for ${city.name}`);
+                setError('Failed to fetch weather data');
                 console.error(err);
             } finally {
                 setIsLoading(false);
@@ -54,12 +81,12 @@ export function TemperatureListItem({ city }) {
         }
 
         fetchWeather();
-    }, [city]);
+    }, [location]);
 
     if (isLoading) {
         return (
             <List.Item
-                title={`Loading ${city.name} temperature...`}
+                title="Loading temperature..."
                 left={(props) => <MaterialCommunityIcons {...props} name="thermometer" size={24} />}
             />
         );
@@ -68,7 +95,7 @@ export function TemperatureListItem({ city }) {
     if (error || !temperature) {
         return (
             <List.Item
-                title={error || `Error loading ${city.name} temperature`}
+                title={error || "Error loading temperature"}
                 left={(props) => <MaterialCommunityIcons {...props} name="alert" size={24} />}
             />
         );
@@ -77,7 +104,7 @@ export function TemperatureListItem({ city }) {
     return (
         <Card style={styles.card}>
             <Card.Title
-                title={city.name.charAt(0).toUpperCase() + city.name.slice(1)}
+                title="Current Location"
             />
             <Card.Content>
                 <View style={styles.currentWeather}>
