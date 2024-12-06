@@ -5,9 +5,11 @@ import { View, StyleSheet } from "react-native";
 export default function SearchBar() {
     const [searchQuery, setSearchQuery] = useState("");
     const [cities, setCities] = useState([]);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         const fetchCityGeoCode = async (city: string) => {
             try {
+                setLoading(true);
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/search?q=${city}&format=json&limit=10`,
                     {
@@ -22,6 +24,8 @@ export default function SearchBar() {
             } catch (error) {
                 console.error("Error fetching city geocode:", error);
                 setCities([]);
+            } finally {
+                setLoading(false);
             }
         };
         fetchCityGeoCode(searchQuery);
@@ -33,8 +37,10 @@ export default function SearchBar() {
                 onChangeText={setSearchQuery}
                 value={searchQuery}
                 selectionColor={"#000"}
+                loading={loading}
             />
-            {cities &&
+            {!loading &&
+                cities &&
                 cities.map((city: any) => {
                     return (
                         <View>
