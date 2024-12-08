@@ -2,7 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { List, Card, DataTable, Text } from "react-native-paper";
 import { useEffect, useState } from "react";
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
 import { ENV } from "../config/env";
 
 const API = {
@@ -19,8 +19,8 @@ export function TemperatureListItem() {
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setError('Permission to access location was denied');
+            if (status !== "granted") {
+                setError("Permission to access location was denied");
                 setIsLoading(false);
                 return;
             }
@@ -30,10 +30,10 @@ export function TemperatureListItem() {
                 setLocation({
                     lat: location.coords.latitude,
                     lon: location.coords.longitude,
-                    name: 'Current Location'
+                    name: "Current Location",
                 });
             } catch (err) {
-                setError('Could not get current location');
+                setError("Could not get current location");
                 setIsLoading(false);
             }
         })();
@@ -60,12 +60,10 @@ export function TemperatureListItem() {
                     pressure: data.hourly.pressure_msl[0],
                     minTemp: data.daily.temperature_2m_min[0],
                     maxTemp: data.daily.temperature_2m_max[0],
-                    hourlyForecast: data.hourly.temperature_2m
-                        .slice(0, 24)
-                        .map((temp, i) => ({
-                            time: data.hourly.time[i],
-                            temp,
-                        })),
+                    hourlyForecast: data.hourly.temperature_2m.slice(0, 24).map((temp, i) => ({
+                        time: data.hourly.time[i],
+                        temp,
+                    })),
                     dailyForecast: data.daily.temperature_2m_max.map((max, i) => ({
                         date: data.daily.time[i],
                         maxTemp: max,
@@ -73,7 +71,7 @@ export function TemperatureListItem() {
                     })),
                 });
             } catch (err) {
-                setError('Failed to fetch weather data');
+                setError("Failed to fetch weather data");
                 console.error(err);
             } finally {
                 setIsLoading(false);
@@ -103,9 +101,7 @@ export function TemperatureListItem() {
 
     return (
         <Card style={styles.card}>
-            <Card.Title
-                title="Current Location"
-            />
+            <Card.Title title="Current Location" />
             <Card.Content>
                 <View style={styles.currentWeather}>
                     <Text variant="headlineMedium">
