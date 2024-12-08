@@ -1,3 +1,4 @@
+import SearchBar from "@/components/SearchBar";
 import { Text, View } from "react-native";
 
 export default function Index() {
@@ -9,6 +10,7 @@ export default function Index() {
                 alignItems: "center",
             }}>
             <Text>Hello World!</Text>
+            <SearchBar />
         </View>
     );
 }

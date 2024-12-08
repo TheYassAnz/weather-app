@@ -14,33 +14,33 @@ export function TemperatureListItem() {
     const [temperature, setTemperature] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [location, setLocation] = useState(null);
+    // const [location, setLocation] = useState(null);
+
+    // useEffect(() => {
+    //     (async () => {
+    //         let { status } = await Location.requestForegroundPermissionsAsync();
+    //         if (status !== "granted") {
+    //             setError("Permission to access location was denied");
+    //             setIsLoading(false);
+    //             return;
+    //         }
+
+    //         try {
+    //             const location = await Location.getCurrentPositionAsync({});
+    //             setLocation({
+    //                 lat: location.coords.latitude,
+    //                 lon: location.coords.longitude,
+    //                 name: "Current Location",
+    //             });
+    //         } catch (err) {
+    //             setError("Could not get current location");
+    //             setIsLoading(false);
+    //         }
+    //     })();
+    // }, []);
 
     useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                setError("Permission to access location was denied");
-                setIsLoading(false);
-                return;
-            }
-
-            try {
-                const location = await Location.getCurrentPositionAsync({});
-                setLocation({
-                    lat: location.coords.latitude,
-                    lon: location.coords.longitude,
-                    name: "Current Location",
-                });
-            } catch (err) {
-                setError("Could not get current location");
-                setIsLoading(false);
-            }
-        })();
-    }, []);
-
-    useEffect(() => {
-        if (!location) return;
+        //         if (!location) return;
 
         async function fetchWeather() {
             setIsLoading(true);
@@ -50,28 +50,8 @@ export function TemperatureListItem() {
                 const url = `${API.baseUrl}?latitude=${location.lat}&longitude=${location.lon}&${API.params}`;
                 const response = await fetch(url);
                 const data = await response.json();
-
-                setTemperature({
-                    temperature: data.hourly.temperature_2m[0],
-                    temperatureF: (data.hourly.temperature_2m[0] * 9) / 5 + 32,
-                    windSpeed: data.hourly.windspeed_10m[0],
-                    windDirection: data.hourly.winddirection_10m[0],
-                    humidity: data.hourly.relativehumidity_2m[0],
-                    pressure: data.hourly.pressure_msl[0],
-                    minTemp: data.daily.temperature_2m_min[0],
-                    maxTemp: data.daily.temperature_2m_max[0],
-                    hourlyForecast: data.hourly.temperature_2m.slice(0, 24).map((temp, i) => ({
-                        time: data.hourly.time[i],
-                        temp,
-                    })),
-                    dailyForecast: data.daily.temperature_2m_max.map((max, i) => ({
-                        date: data.daily.time[i],
-                        maxTemp: max,
-                        minTemp: data.daily.temperature_2m_min[i],
-                    })),
-                });
+                setTemperature(data);
             } catch (err) {
-                setError("Failed to fetch weather data");
                 console.error(err);
             } finally {
                 setIsLoading(false);
@@ -79,7 +59,7 @@ export function TemperatureListItem() {
         }
 
         fetchWeather();
-    }, [location]);
+    }, []);
 
     if (isLoading) {
         return (
