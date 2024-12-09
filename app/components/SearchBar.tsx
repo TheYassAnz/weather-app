@@ -1,11 +1,13 @@
-import { Searchbar, List, Text, Icon } from "react-native-paper";
+import { Searchbar, List } from "react-native-paper";
 import { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function SearchBar() {
     const [searchQuery, setSearchQuery] = useState("");
     const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
     useEffect(() => {
         const fetchCityGeoCode = async (city: string) => {
             try {
@@ -50,6 +52,10 @@ export default function SearchBar() {
                                 onPress={() => {
                                     setSearchQuery("");
                                     console.log(city);
+                                    router.replace({
+                                        pathname: "/city",
+                                        params: { lat: city.lat, lon: city.lon },
+                                    });
                                 }}
                                 title={city.display_name}
                                 description={`Latitude: ${city.lat}, Longitude: ${city.lon}`}
