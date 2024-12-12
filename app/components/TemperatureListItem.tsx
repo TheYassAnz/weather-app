@@ -1,13 +1,22 @@
 import { StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { List, Card, DataTable, Text } from "react-native-paper";
+import { List, Card, DataTable, Text, IconButton } from "react-native-paper";
 import { useEffect, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export function TemperatureListItem({ lat, lon }: { lat: any; lon: any }) {
+export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string; lon: string }) {
     const [meteo, setMeteo] = useState({} as any);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // const addCityToFavorite = async (value: any) => {
+    //     try {
+    //         const jsonValue = JSON.stringify(value);
+    //         await AsyncStorage.setItem("my-key", jsonValue);
+    //     } catch (e) {
+    //         console.error("Error adding city to favorite:", e);
+    //     }
+    // };
 
     useEffect(() => {
         async function fetchWeather() {
@@ -37,7 +46,7 @@ export function TemperatureListItem({ lat, lon }: { lat: any; lon: any }) {
         }
 
         fetchWeather();
-    }, []);
+    }, [lat, lon]);
 
     if (isLoading) {
         return (
@@ -59,7 +68,23 @@ export function TemperatureListItem({ lat, lon }: { lat: any; lon: any }) {
 
     return (
         <Card style={styles.card}>
-            <Card.Title title="Current Location" />
+            <Card.Title
+                title={`Current wheater `}
+                // subtitle={name}
+                right={(props) => (
+                    <View>
+                        <IconButton
+                            {...props}
+                            icon="star-outline"
+                            onPress={() => {
+                                console.log("Add to favorites");
+                                // addCityToFavorite({ name, lat, lon });
+                            }}
+                        />
+                    </View>
+                )}
+            />
+
             <Card.Content>
                 <View style={styles.currentWeather}>
                     <Text variant="headlineMedium" style={styles.temperatureText}>

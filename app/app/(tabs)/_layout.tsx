@@ -26,12 +26,22 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="details/[location]"
+                name="cities"
+                options={{
+                    title: "My Cities",
+                    tabBarIcon: ({ color, focused }) => (
+                        <Ionicons name="location" color={color} size={24} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="details/[id]"
                 options={{
                     title: "Details",
                     tabBarIcon: ({ color, focused }) => (
                         <Ionicons name="information-circle" color={color} size={24} />
                     ),
+                    // this will prevent the tab from being rendered
                     href: null,
                 }}
             />

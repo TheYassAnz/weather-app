@@ -13,7 +13,7 @@ export default function SearchBar() {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?q=${city}&format=json&limit=10`,
+                    `https://nominatim.openstreetmap.org/search?q=${city}&format=json&limit=10&addressdetails=1`,
                     {
                         headers: {
                             "User-Agent":
@@ -54,8 +54,12 @@ export default function SearchBar() {
                                     console.log(city);
 
                                     router.replace({
-                                        pathname: "/details/[location]",
-                                        params: { lat: city.lat, lon: city.lon },
+                                        pathname: "/details/[id]",
+                                        params: {
+                                            id: city.place_id,
+                                            lat: city.lat,
+                                            lon: city.lon,
+                                        },
                                     });
                                 }}
                                 title={city.display_name}
