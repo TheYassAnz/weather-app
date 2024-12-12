@@ -52,8 +52,9 @@ export default function SearchBar() {
                                 onPress={() => {
                                     setSearchQuery("");
                                     console.log(city);
+
                                     router.replace({
-                                        pathname: "/city",
+                                        pathname: "/details/[location]",
                                         params: { lat: city.lat, lon: city.lon },
                                     });
                                 }}

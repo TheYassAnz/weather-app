@@ -4,12 +4,10 @@ import { List, Card, DataTable, Text } from "react-native-paper";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 
-export function TemperatureListItem() {
+export function TemperatureListItem({ lat, lon }: { lat: any; lon: any }) {
     const [meteo, setMeteo] = useState({} as any);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const params = useLocalSearchParams();
-    const { lon, lat } = params;
 
     useEffect(() => {
         async function fetchWeather() {
