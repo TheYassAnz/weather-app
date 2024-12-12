@@ -1,5 +1,5 @@
+import ButtonLocation from "@/components/ButtonLocation";
 import SearchBar from "@/components/SearchBar";
-import Position from "../getLocation";
 import { View } from "react-native";
 
 export default function Index() {
@@ -11,8 +11,7 @@ export default function Index() {
                 alignItems: "center",
             }}>
             <SearchBar />
-            <Position />
+            <ButtonLocation />
         </View>
     );
 }
-
