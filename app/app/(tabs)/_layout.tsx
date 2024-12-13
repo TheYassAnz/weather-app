@@ -31,7 +31,7 @@ export default function TabLayout() {
                 options={{
                     title: "My Cities",
                     tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name="location" color={color} size={24} />
+                        <Ionicons name="list" color={color} size={24} />
                     ),
                 }}
             />
@@ -39,9 +39,7 @@ export default function TabLayout() {
                 name="location"
                 options={{
                     title: "My location",
-                    tabBarIcon: ({ color, focused }) => (
-                        <IconButton icon="map-marker" size={30} />
-                    ),
+                    tabBarIcon: ({ color, focused }) => <IconButton icon="map-marker" size={24} />,
                 }}
             />
             <Tabs.Screen
