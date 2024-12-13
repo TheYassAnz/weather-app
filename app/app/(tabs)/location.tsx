@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { ActivityIndicator } from "react-native-paper";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 
 export default function LocationTab() {
     const router = useRouter();
@@ -24,16 +24,15 @@ export default function LocationTab() {
         });
     };
 
-    useEffect(() => {
-        getLocation().finally(() => setLoading(false));
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            setLoading(true);
+            getLocation().finally(() => setLoading(false));
+        }, [])
+    );
 
     if (loading) {
-        return (
-            <>
-                <ActivityIndicator animating={true} size="large" />
-            </>
-        );
+        return <ActivityIndicator animating={true} size="large" />;
     }
 
     return null;
