@@ -118,8 +118,8 @@ export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string;
                     {meteo.maxTempForecast.map((maxTemp: number, index: number) => (
                         <DataTable.Row key={index}>
                             <DataTable.Cell>Day {index + 1}</DataTable.Cell>
-                            <DataTable.Cell>Min: {maxTemp}°C</DataTable.Cell>
-                            <DataTable.Cell>Max: {meteo.minTempForecast[index]}°C</DataTable.Cell>
+                            <DataTable.Cell>Min: {meteo.minTempForecast[index]}°C</DataTable.Cell>
+                            <DataTable.Cell>Max: {maxTemp}°C</DataTable.Cell>
                         </DataTable.Row>
                     ))}
                 </DataTable>
