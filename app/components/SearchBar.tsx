@@ -2,6 +2,7 @@ import { Searchbar, List } from "react-native-paper";
 import { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { debounce } from "lodash";
 
 export default function SearchBar() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -13,7 +14,7 @@ export default function SearchBar() {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?q=${city}&format=json&limit=10&addressdetails=1`,
+                    `https://nominatim.openstreetmap.org/search?city=${city}&format=json&limit=5&addressdetails=1`,
                     {
                         headers: {
                             "User-Agent":
@@ -30,7 +31,14 @@ export default function SearchBar() {
                 setLoading(false);
             }
         };
-        fetchCityGeoCode(searchQuery);
+        const debouncedFetch = debounce(fetchCityGeoCode, 500);
+        if (searchQuery) {
+            debouncedFetch(searchQuery);
+        }
+
+        return () => {
+            debouncedFetch.cancel();
+        };
     }, [searchQuery]);
 
     return (
@@ -44,14 +52,14 @@ export default function SearchBar() {
             />
             <View>
                 {!loading &&
-                    cities &&
+                    cities.length > 0 &&
                     cities.map((city: any) => {
                         return (
                             <List.Item
                                 key={city.place_id}
                                 onPress={() => {
                                     setSearchQuery("");
-                                    console.log(city);
+                                    console.log("city", city);
 
                                     router.replace({
                                         pathname: "/details/[id]",
@@ -62,7 +70,7 @@ export default function SearchBar() {
                                         },
                                     });
                                 }}
-                                title={city.display_name}
+                                title={city.name + ", " + city.address.country}
                                 description={`Latitude: ${city.lat}, Longitude: ${city.lon}`}
                             />
                         );

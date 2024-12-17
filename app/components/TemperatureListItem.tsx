@@ -2,24 +2,37 @@ import { StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { List, Card, DataTable, Text, IconButton } from "react-native-paper";
 import { useEffect, useState } from "react";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
+import SessionStorage from "react-native-session-storage";
 
 export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string; lon: string }) {
     const [meteo, setMeteo] = useState({} as any);
+    const [locationDetails, setLocationDetails] = useState({} as any);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [favoritesCities, setFavoritesCities] = useState([]);
 
-    // const addCityToFavorite = async (value: any) => {
-    //     try {
-    //         const jsonValue = JSON.stringify(value);
-    //         await AsyncStorage.setItem("my-key", jsonValue);
-    //     } catch (e) {
-    //         console.error("Error adding city to favorite:", e);
-    //     }
-    // };
+    const addCityToFavorite = async (value: any) => {
+        try {
+            const jsonValue = JSON.stringify([...favoritesCities, value]);
+            await SessionStorage.setItem("@favorites_cities", jsonValue);
+        } catch (e) {
+            console.error("Error adding city to favorite:", e);
+        }
+    };
 
     useEffect(() => {
-        async function fetchWeather() {
+        const getFavoritesCities = async () => {
+            try {
+                const jsonValue = await SessionStorage.getItem("@favorites_cities");
+                if (jsonValue) {
+                    setFavoritesCities(JSON.parse(jsonValue));
+                    console.log("Favorites cities", JSON.parse(jsonValue));
+                }
+            } catch (e) {
+                console.error("Error reading value:", e);
+            }
+        };
+        const fetchWeather = async () => {
             setIsLoading(true);
             setError(null);
 
@@ -43,9 +56,29 @@ export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string;
             } finally {
                 setIsLoading(false);
             }
-        }
+        };
 
+        const getLocationDetails = async () => {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
+                const response = await fetch(url, {
+                    headers: {
+                        "User-Agent":
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+                    },
+                });
+                const data = await response.json();
+                console.log("location details", data);
+                setLocationDetails({
+                    name: data.name + ", " + data.address.country,
+                });
+            } catch (error) {
+                console.error("Error fetching location details:", error);
+            }
+        };
+        getFavoritesCities();
         fetchWeather();
+        getLocationDetails();
     }, [lat, lon]);
 
     if (isLoading) {
@@ -70,7 +103,7 @@ export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string;
         <Card style={styles.card}>
             <Card.Title
                 title={`Current wheater `}
-                // subtitle={name}
+                subtitle={locationDetails.name}
                 right={(props) => (
                     <View>
                         <IconButton
@@ -78,7 +111,12 @@ export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string;
                             icon="star-outline"
                             onPress={() => {
                                 console.log("Add to favorites");
-                                // addCityToFavorite({ name, lat, lon });
+                                addCityToFavorite({
+                                    id: id,
+                                    name: locationDetails.name,
+                                    lat: lat,
+                                    lon: lon,
+                                });
                             }}
                         />
                     </View>
@@ -88,7 +126,7 @@ export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string;
             <Card.Content>
                 <View style={styles.currentWeather}>
                     <Text variant="headlineMedium" style={styles.temperatureText}>
-                        {meteo.current}°C / {meteo.current * 1.8 + 32}°F
+                        {meteo.current}°C / {(meteo.current * 1.8 + 32).toFixed(2)}°F
                     </Text>
                     <Text style={styles.minMaxText}>
                         Min: {meteo.minTemp}°C | Max: {meteo.maxTemp}°C

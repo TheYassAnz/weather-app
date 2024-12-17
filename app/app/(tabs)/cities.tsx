@@ -1,35 +1,31 @@
 import { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Avatar, Card, IconButton } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Avatar, Button, Card, IconButton } from "react-native-paper";
+import { usePathname } from "expo-router";
+import SessionStorage from "react-native-session-storage";
 
 export default function Cities() {
+    const pathname = usePathname();
     const [cities, setCities] = useState([]);
 
-    const getData = async () => {
-        try {
-            const jsonValue = await AsyncStorage.getItem("my-key");
-            console.log(jsonValue);
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-        } catch (e) {
-            // error reading value
-            console.error("Error reading value:", e);
-        }
+    const fetchSavedCities = async () => {
+        // fetch
+    };
+
+    const clearSavedCities = async () => {
+        // clear
     };
 
     useEffect(() => {
-        getData().then((value) => {
-            if (value) {
-                setCities(value);
-            }
-        });
-    }, []);
+        fetchSavedCities();
+    }, [pathname]);
 
     return (
         <View>
-            {/* {cities.map((city) => (
+            <Button onPress={clearSavedCities}>Clear saved cities</Button>
+            {cities.map((city: any) => (
                 <Card.Title
-                    key={city.name}
+                    key={city.id}
                     title={city.name}
                     subtitle={city.country}
                     left={(props) => <Avatar.Icon {...props} icon="city" />}
@@ -43,7 +39,7 @@ export default function Cities() {
                         />
                     )}
                 />
-            ))} */}
+            ))}
         </View>
     );
 }
