@@ -65,14 +65,7 @@ export default function Cities() {
                     key={city.place_id}
                     onPress={() => {
                         console.log("Navigate to city details");
-                        router.replace({
-                            pathname: "/details/[id]",
-                            params: {
-                                id: city.place_id,
-                                lat: city.lat,
-                                lon: city.lon,
-                            },
-                        });
+                        router.navigate(`/details/city?lat=${city.lat}&lon=${city.lon}`);
                     }}>
                     <Card.Title
                         key={city.place_id}

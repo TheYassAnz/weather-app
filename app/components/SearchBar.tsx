@@ -14,7 +14,7 @@ export default function SearchBar() {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?city=${city}&format=json&limit=5&addressdetails=1`,
+                    `${process.env.EXPO_PUBLIC_GEOCODE_API_URL}/search?city=${city}&type=city&format=json&limit=5&addressdetails=1`,
                     {
                         headers: {
                             "User-Agent":
@@ -23,7 +23,10 @@ export default function SearchBar() {
                     }
                 );
                 const data = await response.json();
-                setCities(data);
+                var filtered_data = data.filter(
+                    (item: any) => item.addresstype === "city" || item.addresstype === "town"
+                );
+                setCities(filtered_data);
             } catch (error) {
                 console.error("Error fetching city geocode:", error);
                 setCities([]);
@@ -60,15 +63,10 @@ export default function SearchBar() {
                                 onPress={() => {
                                     setSearchQuery("");
                                     console.log("city", city);
-
-                                    router.replace({
-                                        pathname: "/details/[id]",
-                                        params: {
-                                            id: city.place_id,
-                                            lat: city.lat,
-                                            lon: city.lon,
-                                        },
-                                    });
+                                    setCities([]);
+                                    router.navigate(
+                                        `/details/city?lat=${city.lat}&lon=${city.lon}`
+                                    );
                                 }}
                                 title={city.name + ", " + city.address.country}
                                 description={`Latitude: ${city.lat}, Longitude: ${city.lon}`}

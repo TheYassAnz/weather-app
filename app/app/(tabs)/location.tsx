@@ -14,14 +14,9 @@ export default function LocationTab() {
             return;
         }
         let location = await Location.getCurrentPositionAsync({});
-        router.replace({
-            pathname: "/details/[id]",
-            params: {
-                id: location.timestamp,
-                lat: location.coords.latitude,
-                lon: location.coords.longitude,
-            },
-        });
+        router.navigate(
+            `/details/city?lat=${location.coords.latitude}&lon=${location.coords.longitude}`
+        );
     };
 
     useFocusEffect(
