@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { View } from "react-native";
 import { Avatar, Button, Card, IconButton } from "react-native-paper";
-import { usePathname, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 export default function Cities() {
-    const pathname = usePathname();
     const router = useRouter();
     const [cities, setCities] = useState([] as any[]);
 
@@ -43,9 +42,11 @@ export default function Cities() {
         }
     };
 
-    useEffect(() => {
-        fetchSavedCities();
-    }, [pathname]);
+    useFocusEffect(
+        useCallback(() => {
+            fetchSavedCities();
+        }, [])
+    );
 
     if (cities && cities.length <= 0) {
         return (
