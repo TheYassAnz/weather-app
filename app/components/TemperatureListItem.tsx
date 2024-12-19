@@ -2,84 +2,103 @@ import { StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { List, Card, DataTable, Text, IconButton } from "react-native-paper";
 import { useEffect, useState } from "react";
-import SessionStorage from "react-native-session-storage";
+import { useRouter } from "expo-router";
 
 export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string; lon: string }) {
+    const router = useRouter();
     const [meteo, setMeteo] = useState({} as any);
     const [locationDetails, setLocationDetails] = useState({} as any);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [favoritesCities, setFavoritesCities] = useState([]);
+    const [isCityFavorite, setIsCityFavorite] = useState(false);
 
-    const addCityToFavorite = async (value: any) => {
+    const addCityToFavorite = async (city: any) => {
         try {
-            const jsonValue = JSON.stringify([...favoritesCities, value]);
-            await SessionStorage.setItem("@favorites_cities", jsonValue);
-        } catch (e) {
-            console.error("Error adding city to favorite:", e);
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/city`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(city),
+            });
+            const data = await response.json();
+            console.log(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            router.push("/cities");
+        }
+    };
+
+    const fetchWeather = async () => {
+        try {
+            setIsLoading(true);
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min`;
+            const response = await fetch(url);
+            const data = await response.json();
+            setMeteo({
+                current: data.current.temperature_2m,
+                minTemp: data.daily.temperature_2m_min[0],
+                maxTemp: data.daily.temperature_2m_max[0],
+                windSpeed: data.current.wind_speed_10m,
+                windDirection: data.current.wind_direction_10m,
+                humidity: data.current.relative_humidity_2m,
+                pressure: data.current.surface_pressure,
+                maxTempForecast: data.daily.temperature_2m_max,
+                minTempForecast: data.daily.temperature_2m_min,
+            });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            getLocationDetails();
+        }
+    };
+
+    const getLocationDetails = async () => {
+        try {
+            setIsLoading(true);
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
+            const response = await fetch(url, {
+                headers: {
+                    "User-Agent":
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+                },
+            });
+            const data = await response.json();
+            console.log("location details", data);
+            var place_id = data.place_id;
+            setLocationDetails({
+                place_id: data.place_id,
+                name: data.name,
+                country: data.address.country,
+            });
+        } catch (error) {
+            console.error("Error fetching location details:", error);
+        } finally {
+            checkIfCityFavorite(place_id);
+        }
+    };
+
+    const checkIfCityFavorite = async (place_id: string) => {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/city/${place_id}`);
+            const data = await response.json();
+            console.log("checkIfCityFavorite", data);
+            if (data != null) {
+                setIsCityFavorite(true);
+            } else {
+                setIsCityFavorite(false);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        const getFavoritesCities = async () => {
-            try {
-                const jsonValue = await SessionStorage.getItem("@favorites_cities");
-                if (jsonValue) {
-                    setFavoritesCities(JSON.parse(jsonValue));
-                    console.log("Favorites cities", JSON.parse(jsonValue));
-                }
-            } catch (e) {
-                console.error("Error reading value:", e);
-            }
-        };
-        const fetchWeather = async () => {
-            setIsLoading(true);
-            setError(null);
-
-            try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min`;
-                const response = await fetch(url);
-                const data = await response.json();
-                setMeteo({
-                    current: data.current.temperature_2m,
-                    minTemp: data.daily.temperature_2m_min[0],
-                    maxTemp: data.daily.temperature_2m_max[0],
-                    windSpeed: data.current.wind_speed_10m,
-                    windDirection: data.current.wind_direction_10m,
-                    humidity: data.current.relative_humidity_2m,
-                    pressure: data.current.surface_pressure,
-                    maxTempForecast: data.daily.temperature_2m_max,
-                    minTempForecast: data.daily.temperature_2m_min,
-                });
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        const getLocationDetails = async () => {
-            try {
-                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
-                const response = await fetch(url, {
-                    headers: {
-                        "User-Agent":
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-                    },
-                });
-                const data = await response.json();
-                console.log("location details", data);
-                setLocationDetails({
-                    name: data.name + ", " + data.address.country,
-                });
-            } catch (error) {
-                console.error("Error fetching location details:", error);
-            }
-        };
-        getFavoritesCities();
         fetchWeather();
-        getLocationDetails();
-    }, [lat, lon]);
+    }, [id, lat, lon]);
 
     if (isLoading) {
         return (
@@ -103,22 +122,28 @@ export function TemperatureListItem({ id, lat, lon }: { id: string; lat: string;
         <Card style={styles.card}>
             <Card.Title
                 title={`Current wheater `}
-                subtitle={locationDetails.name}
+                subtitle={locationDetails.name + ", " + locationDetails.country}
                 right={(props) => (
                     <View>
-                        <IconButton
-                            {...props}
-                            icon="star-outline"
-                            onPress={() => {
-                                console.log("Add to favorites");
-                                addCityToFavorite({
-                                    id: id,
-                                    name: locationDetails.name,
-                                    lat: lat,
-                                    lon: lon,
-                                });
-                            }}
-                        />
+                        {isCityFavorite ? (
+                            <IconButton {...props} icon="star" />
+                        ) : (
+                            <IconButton
+                                {...props}
+                                icon="star-outline"
+                                onPress={() => {
+                                    console.log("Add to favorites");
+                                    console.log(locationDetails);
+                                    addCityToFavorite({
+                                        place_id: locationDetails.place_id,
+                                        name: locationDetails.name,
+                                        country: locationDetails.country,
+                                        lat: lat,
+                                        lon: lon,
+                                    });
+                                }}
+                            />
+                        )}
                     </View>
                 )}
             />
