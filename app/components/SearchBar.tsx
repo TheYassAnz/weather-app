@@ -14,7 +14,7 @@ export default function SearchBar() {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `${process.env.EXPO_PUBLIC_GEOCODE_API_URL}/search?city=${city}&type=city&format=json&limit=5&addressdetails=1`,
+                    `${process.env.EXPO_PUBLIC_GEOCODE_API_URL}/search?city=${city}&type=city&format=json&addressdetails=1`,
                     {
                         headers: {
                             "User-Agent":
